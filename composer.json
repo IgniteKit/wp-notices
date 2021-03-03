@@ -1,7 +1,7 @@
 {
   "name": "ignitekit/wp-notices",
   "description": "Easy to use dashboard notices manager for WordPress\n\n",
-  "license": "MIT",
+  "license": "GPL-2.0-or-later",
   "authors": [
     {
       "email": "dg@darkog.com",

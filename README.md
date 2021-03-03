@@ -1,9 +1,9 @@
 # WP Notices
 
-Easy to use notices management library for WordPress that implements [WordPress notices](https://developer.wordpress.org/reference/hooks/admin_notices/)
+Easy to use notices management library for WordPress that
+implements [WordPress notices](https://developer.wordpress.org/reference/hooks/admin_notices/)
 
-The library creates all the necessary stuff and ajax handling for dismissing the notices and also offers manual
-dismissing through code.
+The library creates all the necessary stuff and ajax handling for dismissing the notices and also offers manual dismissing through code.
 
 ## Quick Start
 
@@ -25,6 +25,7 @@ class My_Plugin_Bootstrap() {
     private $notices_manager;
     
     public function __construct() {
+        // Create instance of NoticesManager annd pass some custom identifier / prefix here.
         $this->notices_manager = new NoticesManager('myplugin');
         add_action('init', array($this, 'init'));
     }
