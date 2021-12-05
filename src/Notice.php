@@ -31,9 +31,15 @@ class Notice implements NoticesInterface {
 	/**
 	 * The message
 	 *
-	 * @var message
+	 * @var string
 	 */
 	public $message;
+
+	/**
+	 * The template
+	 * @var string
+	 */
+	public $file;
 
 	/**
 	 * The dismissal expiration time
@@ -60,16 +66,25 @@ class Notice implements NoticesInterface {
 	 *
 	 * @param $key
 	 * @param $type
-	 * @param $message
-	 * @param string $expiry
-	 * @param string $dismiss_url
+	 * @param  string  $message
+	 * @param  string  $expiry
+	 * @param  string  $dismiss_url
 	 * @param $prefix
 	 */
 	public function __construct( $key, $type, $message, $expiry = 'never', $dismiss_url = '', $prefix = '' ) {
-		$this->id          = self::generate_id( $key, $type );
-		$this->key         = $key;
-		$this->type        = $type;
-		$this->message     = $message;
+		$this->id   = self::generate_id( $key, $type );
+		$this->key  = $key;
+		$this->type = $type;
+
+		if ( 0 === strpos( $message, 'file://' ) ) {
+			$path = substr( $message, '7' );
+			if ( file_exists( $path ) ) {
+				$this->file = $path;
+			}
+		} else {
+			$this->message = $message;
+		}
+
 		$this->expiry      = $expiry;
 		$this->prefix      = $prefix;
 		$this->dismiss_url = add_query_arg( array( 'notice_id' => $this->id ), $dismiss_url );
@@ -81,7 +96,7 @@ class Notice implements NoticesInterface {
 	public function dismiss() {
 		if ( $this->expiry === self::DISMISS_FOREVER ) {
 			update_option( $this->id, 'yes' );
-		} else if ( is_numeric( $this->expiry ) ) {
+		} elseif ( is_numeric( $this->expiry ) ) {
 			set_transient( $this->id, 'yes', (int) $this->expiry );
 		}
 	}
@@ -93,7 +108,7 @@ class Notice implements NoticesInterface {
 	public function reset() {
 		if ( $this->expiry === self::DISMISS_FOREVER ) {
 			delete_option( $this->id );
-		} else if ( is_numeric( $this->expiry ) ) {
+		} elseif ( is_numeric( $this->expiry ) ) {
 			delete_transient( $this->id );
 		}
 	}
@@ -106,7 +121,7 @@ class Notice implements NoticesInterface {
 	public function is_dismissed() {
 		if ( $this->expiry === self::DISMISS_FOREVER ) {
 			return get_option( $this->id ) === 'yes';
-		} else if ( is_numeric( $this->expiry ) ) {
+		} elseif ( is_numeric( $this->expiry ) ) {
 			return get_transient( $this->id ) === 'yes';
 		} else {
 			return false;
@@ -126,7 +141,22 @@ class Notice implements NoticesInterface {
 
 		$dismissable = $this->expiry !== 'disabled' ? 'is-dismissible' : '';
 		$class       = sprintf( 'notice notice-%s %s dg-notice dg-notice-%s', $this->type, $dismissable, $this->prefix );
-		printf( '<div class="%1$s" data-dismiss-url="%2$s">%3$s</div>', esc_attr( $class ), $dismiss_url, $this->message );
+		printf( '<div class="%1$s" data-dismiss-url="%2$s">%3$s</div>', esc_attr( $class ), $dismiss_url, $this->get_message() );
+	}
+
+	/**
+	 * Returns the message
+	 * @return false|string
+	 */
+	private function get_message() {
+
+		if ( ! empty( $this->file ) ) {
+			ob_start();
+			include( $this->file );
+			$this->message = ob_get_clean();
+		}
+
+		return $this->message;
 	}
 
 	/**
