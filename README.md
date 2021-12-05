@@ -206,7 +206,7 @@ public function dismiss()
 public function reset()
 ```
 
-### 4. File templates
+### 5. File templates
 
 The plugin supports file templates instead of simple string messages.
 
