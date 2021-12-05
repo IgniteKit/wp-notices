@@ -206,6 +206,16 @@ public function dismiss()
 public function reset()
 ```
 
+### 4. File templates
+
+The plugin supports file templates instead of simple string messages.
+
+To display notice from a file template, you can provide a path to it with the `file://` prefix as follows:
+
+```
+file:///home/site.com/public_html/wp-content/themes/my-theme/templates/my-notice.php
+```
+
 ## License
 
 ```
